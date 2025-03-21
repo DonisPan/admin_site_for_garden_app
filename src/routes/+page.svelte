@@ -23,16 +23,32 @@
   }
 
   // delete user
-  async function handleDeleteUser(user: User) {
+  async function deleteUser(user: User) {
     const formData = new FormData(); 
     formData.append('id', user.id.toString());
+
+    const confirmDelete = window.confirm('Are you sure you want to delete this user?');
+    if (!confirmDelete) {
+        return;
+    }
 
     const response = await fetch('/api/users/delete', {
       method: 'POST',
       body: formData,
     });
+    
+    const responseData = await response.json();
+    if (!responseData.success) {
+      console.error('Failed to delete user');
+      return;
+    }
+    
+    // update local
+    filteredUsers = filteredUsers.filter((deletedUser: User) => deletedUser.id !== user.id);
+    if(selectedUser?.id === user.id) {
+      selectedUser = null;
+    }
 
-    alert(`Delete user: ${user.email}`);
   }
 
   // delete plant
@@ -207,7 +223,7 @@
             </button>
             <button
               class="bg-red-500 text-white text-xs px-2 py-1 rounded hover:bg-red-600"
-              on:click={() => handleDeleteUser(user)}
+              on:click={() => deleteUser(user)}
             >Delete</button>
             </li>
           {/each}
