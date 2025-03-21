@@ -4,9 +4,7 @@
   import type { Plant } from "../models/plant.model";
   import type { PlantClass } from "../models/class.model";
   import type { PlantFamily } from "../models/family.model";
-    import { json } from "@sveltejs/kit";
 
-  // Data from server load function
   export let data: { 
     users: User[], 
     userPlants: Plant[], 
@@ -15,41 +13,29 @@
     families: PlantFamily[] 
   };
 
-  // We'll use a local copy of userPlants for editing/updating
-  let plants: Plant[] = [...data.userPlants];
-
+  // select user
   let selectedUser: User | null = null;
   let selectedUserPlants: Plant[] = [];
 
   function handleUserClick(user: User) {
     selectedUser = user;
-    selectedUserPlants = plants.filter((plant: Plant) => plant.user_id === user.id);
+    selectedUserPlants = data.userPlants.filter((plant: Plant) => plant.user_id === user.id);
   }
 
-  function handleDeleteUser(user: User, event: any) {
-    event.stopPropagation();
-    // Implement server call to delete user here
+  // delete user
+  async function handleDeleteUser(user: User) {
+    const formData = new FormData(); 
+    formData.append('id', user.id.toString());
+
+    const response = await fetch('/api/users/delete', {
+      method: 'POST',
+      body: formData,
+    });
+
     alert(`Delete user: ${user.email}`);
   }
 
-  // --- Editing state for plants ---
-  let editingPlantId: number | null = null;
-  let editingPlantName = "";
-  // We'll store class and family as the selected ids
-  let editingPlantClass: number = 0;
-  let editingPlantFamily: number = 0;
-  let editingPlantNote = "";
-
-  let newPlantName: string = "";
-  let newPlantClass: number = 0;
-  let newPlantFamily: number = 0;
-  let newPlantNote: string = "";
-
-  // dropdowns data
-  const classOptions = data.classes;
-  const familyOptions = data.families;
-
-  // delete
+  // delete plant
   async function deletePlant(id: number) {
     const formData = new FormData(); 
     formData.append('id', id.toString());
@@ -68,35 +54,51 @@
     // update local
     data.plants = data.plants.filter((plant: Plant) => plant.id !== id);
     if (selectedUser) {
-      selectedUserPlants = plants.filter((plant: Plant) => plant.user_id === selectedUser!.id);
+      selectedUserPlants = data.userPlants.filter((plant: Plant) => plant.user_id === selectedUser!.id);
     }
   }
 
-  // Update plant via POST method
+  // edit plant
+  let editingPlantId: number | null = null;
+  let editingPlantName: string = "";
+  let editingPlantClass: number | null = null;
+  let editingPlantFamily: number | null = null;
+  let editingPlantNote: string = "";
+
   async function saveEditing() {
     if (editingPlantId !== null) {
-      const updatedPlant = {
-        id: editingPlantId,
-        name: editingPlantName,
-        class: editingPlantClass,
-        family: editingPlantFamily,
-        note: editingPlantNote
-      };
+      const formData = new FormData();
+      formData.append('id', editingPlantId.toString());
+      formData.append('name', editingPlantName);
+      formData.append('note', editingPlantNote);
+      formData.append('plantClass', editingPlantClass!.toString());
+      formData.append('plantFamily', editingPlantFamily!.toString());
+
       const response = await fetch('/api/plants/update', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedPlant)
+        body: formData,
       });
-      if (!response.ok) {
+      const responseData = await response.json();
+      if (!responseData.success) {
         console.error('Failed to update plant');
         return;
       }
-      // Update local state
-      plants = plants.map((plant: Plant) =>
-        plant.id === editingPlantId ? { ...plant, ...updatedPlant } : plant
+      console.log(responseData.message);
+
+      // update local
+      data.plants = data.plants.map((plant: Plant) =>
+        plant.id === editingPlantId
+          ? { 
+              ...plant, 
+              name: editingPlantName, 
+              note: editingPlantNote, 
+              class: editingPlantClass, 
+              family: editingPlantFamily 
+            }
+          : plant
       );
       if (selectedUser) {
-        selectedUserPlants = plants.filter((plant: Plant) => plant.user_id === selectedUser!.id);
+        selectedUserPlants = data.userPlants.filter((plant: Plant) => plant.user_id === selectedUser!.id);
       }
       cancelEditing();
     }
@@ -105,22 +107,25 @@
   function startEditing(plant: Plant) {
     editingPlantId = plant.id;
     editingPlantName = plant.name;
-    const classMatch = classOptions.find((c) => c.id === plant.class);
-    editingPlantClass = classMatch ? classMatch.id : 0;
-    const familyMatch = familyOptions.find((f) => f.id === plant.family);
-    editingPlantFamily = familyMatch ? familyMatch.id : 0;
+    editingPlantClass = plant.class;
+    editingPlantFamily = plant.family;
     editingPlantNote = plant.note || "";
   }
 
   function cancelEditing() {
     editingPlantId = null;
     editingPlantName = "";
-    editingPlantClass = 0;
-    editingPlantFamily = 0;
+    editingPlantClass = null;
+    editingPlantFamily = null;
     editingPlantNote = "";
   }
 
   // add plant
+  let newPlantName: string = "";
+  let newPlantClass: number = 0;
+  let newPlantFamily: number = 0;
+  let newPlantNote: string = "";
+
   async function addNewPlant() {
     if (newPlantName.trim() !== "") {
       const formData = new FormData();
@@ -149,15 +154,24 @@
         is_custom: false,
       }
       data.plants = [...data.plants, newPlant];
+      newPlantName = "";
+      newPlantClass = 0;
+      newPlantFamily = 0;
+      newPlantNote = "";
     }
   }
+
+  // dropdowns data
+  const classOptions = data.classes;
+  const familyOptions = data.families;
 
   // search
   let userSearchQuery: string = "";
   let plantSearchQuery: string = "";
 
   $: filteredUsers = data.users.filter(u =>
-    u.name?.toLowerCase().includes(userSearchQuery.toLowerCase())
+    u.name?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+    u.surname?.toLowerCase().includes(userSearchQuery.toLowerCase())
   );
   $: filteredPlants = data.plants.filter((p: Plant) =>
     p.name.toLowerCase().includes(plantSearchQuery.toLowerCase())
@@ -165,9 +179,9 @@
 </script>
 
 <div class="w-[100vw] flex flex-wrap gap-4 m-4">
-  <!-- Left Column: Users and User Plants -->
+  <!-- users and user plants -->
   <div class="flex flex-col gap-4 w-[40vw]">
-    <!-- Users Card -->
+    <!-- users -->
     <div class="bg-white border border-gray-300 rounded-lg p-4 h-[50vh] flex flex-col">
       <h2 class="text-lg font-semibold mb-2">Users</h2>
       <input
@@ -193,17 +207,15 @@
             </button>
             <button
               class="bg-red-500 text-white text-xs px-2 py-1 rounded hover:bg-red-600"
-              on:click|stopPropagation={(e) => handleDeleteUser(user, e)}
-            >
-              Delete
-            </button>
+              on:click={() => handleDeleteUser(user)}
+            >Delete</button>
             </li>
           {/each}
         </ul>
       </div>
     </div>
 
-    <!-- User Plants Card -->
+    <!-- user plants -->
     <div class="bg-white border border-gray-300 rounded-lg p-4 h-[45vh] flex flex-col">
       <h2 class="text-lg font-semibold mb-2">
         {#if selectedUser}
@@ -218,7 +230,11 @@
             {#if selectedUserPlants.length > 0}
               {#each selectedUserPlants as plant (plant.id)}
                 <li class="py-2">
+                  {#if plant.is_custom}
+                  <span class="font-bold text-blue-800">{plant.name}</span>
+                  {:else}
                   <span class="font-bold">{plant.name}</span>
+                  {/if}
                 </li>
               {/each}
             {:else}
@@ -232,7 +248,7 @@
     </div>
   </div>
 
-  <!-- Plants Column -->
+  <!-- plants -->
   <div class="bg-white border border-gray-300 rounded-lg p-4 w-[45vw] h-[97vh] flex flex-col">
     <h2 class="text-lg font-semibold mb-2">Plants</h2>
     <input
@@ -314,7 +330,7 @@
       </ul>
     </div>
 
-    <!-- New Plant Form -->
+    <!-- new plant -->
     <div class="mt-4 flex flex-col gap-2">
       <input
         type="text"
@@ -329,13 +345,13 @@
         class="border border-gray-300 rounded p-1"
       />
       <select bind:value={newPlantClass} class="border border-gray-300 rounded p-1">
-        <option value="" disabled selected>Select Class</option>
+        <option value=0 disabled selected>Select Class</option>
         {#each classOptions as option (option.id)}
           <option value={option.id}>{option.name}</option>
         {/each}
       </select>
       <select bind:value={newPlantFamily} class="border border-gray-300 rounded p-1">
-        <option value="" disabled selected>Select Family</option>
+        <option value=0 disabled selected>Select Family</option>
         {#each familyOptions as option (option.id)}
           <option value={option.id}>{option.name_common} - {option.name_scientific}</option>
         {/each}
@@ -347,7 +363,7 @@
     </div>
   </div>
 
-  <!-- Right buttons -->
+  <!-- right buttons -->
   <div class="bg-white p-4 h-[97vh] w-[10vw] flex flex-col gap-2">
     <button
       on:click={addNewPlant}
