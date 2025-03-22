@@ -4,6 +4,7 @@ import type { Plant } from "../models/plant.model";
 import { supabase } from "$lib/supabase";
 import type { PlantClass } from "../models/class.model";
 import type { PlantFamily } from "../models/family.model";
+import type { Announcer } from "../models/announcer.model";
 
 export const load: PageServerLoad = async (): Promise<any> => {
     console.log('HOME PAGE LOADING');
@@ -76,7 +77,16 @@ export const load: PageServerLoad = async (): Promise<any> => {
         throw familyError;
     }
     const families: PlantFamily[] = familyData as PlantFamily[];
-    // console.log('SERVER: ', plants)
     
-    return { users, userPlants, plants, classes, families }
+    // fetch announcers
+    const { data: announcerData, error: announcerError } = await supabase
+        .from('ga_announcers')
+        .select('id, message, family')
+    if(announcerError) {
+      throw announcerError;  
+    }
+    const announcers: Announcer[] = announcerData as Announcer[];
+
+    // console.log('SERVER: ', announcers)
+    return { users, userPlants, plants, classes, families, announcers }
 }

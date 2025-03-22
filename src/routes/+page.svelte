@@ -4,13 +4,15 @@
   import type { Plant } from "../models/plant.model";
   import type { PlantClass } from "../models/class.model";
   import type { PlantFamily } from "../models/family.model";
+    import type { Announcer } from "../models/announcer.model";
 
   export let data: { 
     users: User[], 
     userPlants: Plant[], 
     plants: Plant[], 
     classes: PlantClass[], 
-    families: PlantFamily[] 
+    families: PlantFamily[],
+    announcers: Announcer[],
   };
 
   // search
@@ -294,11 +296,58 @@
   }
 
   // announcers modal
-  let showAnnouncersModal = false;
+  let showAnnouncersModal: boolean = false;
+  let newAnnouncerPlantFamily: number = 0;
+  let newAnnouncerMessage: string = '';
   function openAnnouncers() { showAnnouncersModal = true; }
   function closeAnnouncers() { showAnnouncersModal = false; }
 
+  async function addAnnouncer() {
+    if (newAnnouncerMessage.trim() !== '' && newAnnouncerPlantFamily !== 0) {
+      const formData = new FormData();
+      formData.append('family', newAnnouncerPlantFamily.toString());
+      formData.append('message', newAnnouncerMessage.trim());
 
+      const response = await fetch('/api/announcers/add', {
+        method: 'POST',
+        body: formData,
+      });
+      const responseData = await response.json();
+      if (!responseData.success) {
+        console.error('Failed to add announcer');
+        return;
+      }
+
+      // update local
+      const newAnnouncer: Announcer = {
+        id: responseData.id,
+        family: newAnnouncerPlantFamily,
+        message: newAnnouncerMessage,
+      };
+      data.announcers = [...data.announcers, newAnnouncer];
+      newAnnouncerMessage = '';
+      newAnnouncerPlantFamily = 0;
+    }
+  }
+
+  async function removeAnnouncer(id: number) {
+    const formData = new FormData(); 
+    formData.append('id', id.toString());
+
+    const response = await fetch('/api/announcers/delete', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const responseData = await response.json();
+    if (!responseData.success) {
+      console.error('Failed to delete announcer');
+      return;
+    }
+
+    // update local
+    data.announcers = data.announcers.filter((announcer: Announcer) => announcer.id !== id);
+  }
 
 </script>
 
@@ -602,9 +651,9 @@
   {/if}
 
   <!-- announcers modal -->
-  <!-- {#if showAnnouncersModal}
+  {#if showAnnouncersModal}
     <div class="fixed inset-0 flex items-center justify-center backdrop-blur-lg z-50 transition-opacity duration-300">
-      <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 transform transition-all duration-300 scale-95 max-h-150 overflow-y-auto">
+      <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl p-6 transform transition-all duration-300 scale-95 max-h-150 overflow-y-auto">
         <div class="flex justify-between items-center border-b pb-3 mb-4">
           <h2 class="text-2xl font-bold text-gray-800">Manage Announcers</h2>
           <button on:click={closeAnnouncers} class="text-gray-600 hover:text-gray-800 text-3xl leading-none">X</button>
@@ -621,7 +670,8 @@
             {#each data.announcers as announcer (announcer.id)}
               <tr>
                 <td class="px-4 py-2">
-                  <span class="block text-gray-800">{announcer.family}</span>
+                  <span class="block text-gray-800">{data.families.find(f => f.id === announcer.family)?.name_common || "Unknown"} | 
+                    {data.families.find(f => f.id === announcer.family)?.name_scientific || "Unknown"}</span>
                 </td>
                 <td class="px-4 py-2">
                   <span class="block text-gray-800">{announcer.message}</span>
@@ -635,13 +685,18 @@
             {/each}
             <tr>
               <td class="px-4 py-2">
-                <input type="text" bind:value={newFamilyCommonName} class="w-full border border-gray-300 rounded p-1 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="New Common Name" />
+                <select bind:value={newAnnouncerPlantFamily} class="border border-gray-300 rounded p-1">
+                  <option value=0 disabled selected>Select Family</option>
+                  {#each data.families as option (option.id)}
+                    <option value={option.id}>{option.name_common} - {option.name_scientific}</option>
+                  {/each}
+                </select>
               </td>
               <td class="px-4 py-2">
-                <input type="text" bind:value={newFamilyScientificName} class="w-full border border-gray-300 rounded p-1 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="New Scientific Name" />
+                <textarea bind:value={newAnnouncerMessage} class="w-full h-24 border border-gray-300 rounded p-1 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Enter message"></textarea>
               </td>
               <td class="px-4 py-2 flex justify-end">
-                <button on:click={addFamily} class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded transition-colors duration-200 w-32">
+                <button on:click={addAnnouncer} class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded transition-colors duration-200 w-32">
                   Add
                 </button>
               </td>
@@ -650,5 +705,5 @@
         </table>
       </div>
     </div>
-  {/if} -->
+  {/if}
 </div>
