@@ -13,10 +13,6 @@
     families: PlantFamily[] 
   };
 
-
-  // dropdowns data
-  const familyOptions = data.families;
-
   // search
   let userSearchQuery: string = '';
   let plantSearchQuery: string = '';
@@ -251,13 +247,50 @@
   function openAddFamily() { showFamilyModal = true; }
   function closeAddFamily() { showFamilyModal = false; }
   
-  function addFamily() {
-    // const newId = classesModal.length ? Math.min(...classesModal.map(c => c.id)) - 1 : -1;
-    // classesModal = [...classesModal, { id: newId, name: newClassName }];
-    // newClassName = "";
+  async function addFamily() {
+    if (newFamilyCommonName.trim() !== '' && newFamilyScientificName.trim() !== '') {
+      const formData = new FormData();
+      formData.append('name_common', newFamilyCommonName.trim().toUpperCase());
+      formData.append('name_scientific', newFamilyScientificName.trim().toUpperCase());
+
+      const response = await fetch('/api/families/add', {
+        method: 'POST',
+        body: formData,
+      });
+      const responseData = await response.json();
+      if (!responseData.success) {
+        console.error('Failed to add family');
+        return;
+      }
+
+      // update local
+      const newFamily: PlantFamily = {
+        id: responseData.id,
+        name_common: newFamilyCommonName.toUpperCase(),
+        name_scientific: newFamilyScientificName.toUpperCase(),
+      };
+      data.families = [...data.families, newFamily];
+      newFamilyCommonName = '';
+      newFamilyScientificName = '';
+    }
   }
-  function removeFamily(id: number) {
-    // classesModal = classesModal.filter(c => c.id !== id);
+  async function removeFamily(id: number) {
+    const formData = new FormData(); 
+    formData.append('id', id.toString());
+
+    const response = await fetch('/api/families/delete', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const responseData = await response.json();
+    if (!responseData.success) {
+      console.error('Failed to delete family');
+      return;
+    }
+
+    // update local
+    data.families = data.families.filter((plantFamily: PlantFamily) => plantFamily.id !== id);
   }
 
   // announcers modal
@@ -372,7 +405,7 @@
                   {/each}
                 </select>
                 <select bind:value={editingPlantFamily} class="border border-gray-300 rounded p-1 mb-2">
-                  {#each familyOptions as option (option.id)}
+                  {#each data.families as option (option.id)}
                     <option value={option.id}>{option.name_common} - {option.name_scientific}</option>
                   {/each}
                 </select>
@@ -443,7 +476,7 @@
       </select>
       <select bind:value={newPlantFamily} class="border border-gray-300 rounded p-1">
         <option value=0 disabled selected>Select Family</option>
-        {#each familyOptions as option (option.id)}
+        {#each data.families as option (option.id)}
           <option value={option.id}>{option.name_common} - {option.name_scientific}</option>
         {/each}
       </select>
