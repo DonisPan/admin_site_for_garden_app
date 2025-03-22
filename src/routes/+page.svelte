@@ -13,6 +13,15 @@
     families: PlantFamily[] 
   };
 
+
+  // dropdowns data
+  const classOptions = data.classes;
+  const familyOptions = data.families;
+
+  // search
+  let userSearchQuery: string = "";
+  let plantSearchQuery: string = "";
+
   // select user
   let selectedUser: User | null = null;
   let selectedUserPlants: Plant[] = [];
@@ -81,6 +90,23 @@
   let editingPlantFamily: number | null = null;
   let editingPlantNote: string = "";
 
+
+  function startEditing(plant: Plant) {
+    editingPlantId = plant.id;
+    editingPlantName = plant.name;
+    editingPlantClass = plant.class;
+    editingPlantFamily = plant.family;
+    editingPlantNote = plant.note || "";
+  }
+
+  function cancelEditing() {
+    editingPlantId = null;
+    editingPlantName = "";
+    editingPlantClass = null;
+    editingPlantFamily = null;
+    editingPlantNote = "";
+  }
+
   async function saveEditing() {
     if (editingPlantId !== null) {
       const formData = new FormData();
@@ -120,22 +146,6 @@
     }
   }
 
-  function startEditing(plant: Plant) {
-    editingPlantId = plant.id;
-    editingPlantName = plant.name;
-    editingPlantClass = plant.class;
-    editingPlantFamily = plant.family;
-    editingPlantNote = plant.note || "";
-  }
-
-  function cancelEditing() {
-    editingPlantId = null;
-    editingPlantName = "";
-    editingPlantClass = null;
-    editingPlantFamily = null;
-    editingPlantNote = "";
-  }
-
   // add plant
   let newPlantName: string = "";
   let newPlantClass: number = 0;
@@ -160,6 +170,7 @@
         return;
       }
 
+      // update local
       const newPlant: Plant = {
         user_id: null,
         id: responseData.id as number,
@@ -177,14 +188,6 @@
     }
   }
 
-  // dropdowns data
-  const classOptions = data.classes;
-  const familyOptions = data.families;
-
-  // search
-  let userSearchQuery: string = "";
-  let plantSearchQuery: string = "";
-
   $: filteredUsers = data.users.filter(u =>
     u.name?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
     u.surname?.toLowerCase().includes(userSearchQuery.toLowerCase())
@@ -192,6 +195,45 @@
   $: filteredPlants = data.plants.filter((p: Plant) =>
     p.name.toLowerCase().includes(plantSearchQuery.toLowerCase())
   );
+
+  // classes modal
+  let showClassModal = false;
+  let newClassName: string = "";
+  function openAddClass() { showClassModal = true; }
+  function closeAddClass() { showClassModal = false; }
+
+  function addClass() {
+    // const newId = classesModal.length ? Math.min(...classesModal.map(c => c.id)) - 1 : -1;
+    // classesModal = [...classesModal, { id: newId, name: newClassName }];
+    // newClassName = "";
+  }
+  function removeClass(id: number) {
+    // classesModal = classesModal.filter(c => c.id !== id);
+  }
+
+  // families modal
+  let showFamilyModal = false;
+  let newFamilyCommonName: string = "";
+  let newFamilyScientificName: string = "";
+  function openAddFamily() { showFamilyModal = true; }
+  function closeAddFamily() { showFamilyModal = false; }
+  
+  function addFamily() {
+    // const newId = classesModal.length ? Math.min(...classesModal.map(c => c.id)) - 1 : -1;
+    // classesModal = [...classesModal, { id: newId, name: newClassName }];
+    // newClassName = "";
+  }
+  function removeFamily(id: number) {
+    // classesModal = classesModal.filter(c => c.id !== id);
+  }
+
+  // announcers modal
+  let showAnnouncersModal = false;
+  function openAnnouncers() { showAnnouncersModal = true; }
+  function closeAnnouncers() { showAnnouncersModal = false; }
+
+
+
 </script>
 
 <div class="w-[100vw] flex flex-wrap gap-4 m-4">
@@ -382,19 +424,165 @@
   <!-- right buttons -->
   <div class="bg-white p-4 h-[97vh] w-[10vw] flex flex-col gap-2">
     <button
-      on:click={addNewPlant}
+      on:click={openAddClass}
       class="bg-blue-500 text-white text-xs px-2 py-1 rounded hover:bg-blue-600"
     > Add class </button>
 
     <button
-      on:click={addNewPlant}
+      on:click={openAddFamily}
       class="bg-blue-500 text-white text-xs px-2 py-1 rounded hover:bg-blue-600"
     > Add family </button>
 
     <gap class="h-[20px]"></gap>
     <button
-      on:click={addNewPlant}
+      on:click={openAnnouncers}
       class="bg-red-500 text-white text-xs px-2 py-1 rounded hover:bg-red-600"
     > Announcers </button>
   </div>
+
+  <!-- class modal -->
+  {#if showClassModal}
+    <div class="fixed inset-0 flex items-center justify-center backdrop-blur-lg z-50 transition-opacity duration-300">
+      <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 transform transition-all duration-300 scale-95">
+        <div class="flex justify-between items-center border-b pb-3 mb-4">
+          <h2 class="text-2xl font-bold text-gray-800">Manage Classes</h2>
+          <button on:click={closeAddClass} class="text-gray-600 hover:text-gray-800 text-3xl leading-none">X</button>
+        </div>
+        <table class="min-w-full border border-gray-200">
+          <thead>
+            <tr class="bg-gray-50">
+              <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Name</th>
+              <th class="px-4 py-2 text-right text-sm font-medium text-gray-600"></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            {#each data.classes as classItem (classItem.id)}
+              <tr>
+                <td class="px-4 py-2">
+                  <span class="block text-gray-800">{classItem.name}</span>
+                </td>
+                <td class="px-4 py-2 flex justify-end">
+                  <button on:click={() => removeClass(classItem.id)} class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded transition-colors duration-200 w-32 self-end">
+                    Remove
+                  </button>
+                </td>
+              </tr>
+            {/each}
+            <tr>
+              <td class="px-4 py-2">
+                <input type="text" bind:value={newClassName} class="w-full border border-gray-300 rounded p-1 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="New Class Name" />
+              </td>
+              <td class="px-4 py-2 flex justify-end">
+                <button on:click={addClass} class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded transition-colors duration-200 w-32">
+                  Add
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {/if}
+
+  <!-- family modal -->
+  {#if showFamilyModal}
+    <div class="fixed inset-0 flex items-center justify-center backdrop-blur-lg z-50 transition-opacity duration-300">
+      <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 transform transition-all duration-300 scale-95 max-h-150 overflow-y-auto">
+        <div class="flex justify-between items-center border-b pb-3 mb-4">
+          <h2 class="text-2xl font-bold text-gray-800">Manage Families</h2>
+          <button on:click={closeAddFamily} class="text-gray-600 hover:text-gray-800 text-3xl leading-none">X</button>
+        </div>
+        <table class="min-w-full border border-gray-200">
+          <thead>
+            <tr class="bg-gray-50">
+              <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Common Name</th>
+              <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Scientific Name</th>
+              <th class="px-4 py-2 text-right text-sm font-medium text-gray-600"></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            {#each data.families as familyItem (familyItem.id)}
+              <tr>
+                <td class="px-4 py-2">
+                  <span class="block text-gray-800">{familyItem.name_common}</span>
+                </td>
+                <td class="px-4 py-2">
+                  <span class="block text-gray-800">{familyItem.name_scientific}</span>
+                </td>
+                <td class="px-4 py-2 flex justify-end">
+                  <button on:click={() => removeFamily(familyItem.id)} class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded transition-colors duration-200 w-32 self-end">
+                    Remove
+                  </button>
+                </td>
+              </tr>
+            {/each}
+            <tr>
+              <td class="px-4 py-2">
+                <input type="text" bind:value={newFamilyCommonName} class="w-full border border-gray-300 rounded p-1 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="New Common Name" />
+              </td>
+              <td class="px-4 py-2">
+                <input type="text" bind:value={newFamilyScientificName} class="w-full border border-gray-300 rounded p-1 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="New Scientific Name" />
+              </td>
+              <td class="px-4 py-2 flex justify-end">
+                <button on:click={addFamily} class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded transition-colors duration-200 w-32">
+                  Add
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {/if}
+
+  <!-- announcers modal -->
+  <!-- {#if showAnnouncersModal}
+    <div class="fixed inset-0 flex items-center justify-center backdrop-blur-lg z-50 transition-opacity duration-300">
+      <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 transform transition-all duration-300 scale-95 max-h-150 overflow-y-auto">
+        <div class="flex justify-between items-center border-b pb-3 mb-4">
+          <h2 class="text-2xl font-bold text-gray-800">Manage Announcers</h2>
+          <button on:click={closeAnnouncers} class="text-gray-600 hover:text-gray-800 text-3xl leading-none">X</button>
+        </div>
+        <table class="min-w-full border border-gray-200">
+          <thead>
+            <tr class="bg-gray-50">
+              <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">For Family</th>
+              <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Message</th>
+              <th class="px-4 py-2 text-right text-sm font-medium text-gray-600"></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            {#each data.announcers as announcer (announcer.id)}
+              <tr>
+                <td class="px-4 py-2">
+                  <span class="block text-gray-800">{announcer.family}</span>
+                </td>
+                <td class="px-4 py-2">
+                  <span class="block text-gray-800">{announcer.message}</span>
+                </td>
+                <td class="px-4 py-2 flex justify-end">
+                  <button on:click={() => removeAnnouncer(announcer.id)} class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded transition-colors duration-200 w-32 self-end">
+                    Remove
+                  </button>
+                </td>
+              </tr>
+            {/each}
+            <tr>
+              <td class="px-4 py-2">
+                <input type="text" bind:value={newFamilyCommonName} class="w-full border border-gray-300 rounded p-1 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="New Common Name" />
+              </td>
+              <td class="px-4 py-2">
+                <input type="text" bind:value={newFamilyScientificName} class="w-full border border-gray-300 rounded p-1 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="New Scientific Name" />
+              </td>
+              <td class="px-4 py-2 flex justify-end">
+                <button on:click={addFamily} class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded transition-colors duration-200 w-32">
+                  Add
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {/if} -->
 </div>
