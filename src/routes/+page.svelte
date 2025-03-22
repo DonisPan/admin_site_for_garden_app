@@ -15,12 +15,11 @@
 
 
   // dropdowns data
-  const classOptions = data.classes;
   const familyOptions = data.families;
 
   // search
-  let userSearchQuery: string = "";
-  let plantSearchQuery: string = "";
+  let userSearchQuery: string = '';
+  let plantSearchQuery: string = '';
 
   // select user
   let selectedUser: User | null = null;
@@ -85,10 +84,10 @@
 
   // edit plant
   let editingPlantId: number | null = null;
-  let editingPlantName: string = "";
+  let editingPlantName: string = '';
   let editingPlantClass: number | null = null;
   let editingPlantFamily: number | null = null;
-  let editingPlantNote: string = "";
+  let editingPlantNote: string = '';
 
 
   function startEditing(plant: Plant) {
@@ -96,15 +95,15 @@
     editingPlantName = plant.name;
     editingPlantClass = plant.class;
     editingPlantFamily = plant.family;
-    editingPlantNote = plant.note || "";
+    editingPlantNote = plant.note || '';
   }
 
   function cancelEditing() {
     editingPlantId = null;
-    editingPlantName = "";
+    editingPlantName = '';
     editingPlantClass = null;
     editingPlantFamily = null;
-    editingPlantNote = "";
+    editingPlantNote = '';
   }
 
   async function saveEditing() {
@@ -147,10 +146,10 @@
   }
 
   // add plant
-  let newPlantName: string = "";
+  let newPlantName: string = '';
   let newPlantClass: number = 0;
   let newPlantFamily: number = 0;
-  let newPlantNote: string = "";
+  let newPlantNote: string = '';
 
   async function addNewPlant() {
     if (newPlantName.trim() !== "") {
@@ -181,10 +180,10 @@
         is_custom: false,
       }
       data.plants = [...data.plants, newPlant];
-      newPlantName = "";
+      newPlantName = '';
       newPlantClass = 0;
       newPlantFamily = 0;
-      newPlantNote = "";
+      newPlantNote = '';
     }
   }
 
@@ -198,23 +197,57 @@
 
   // classes modal
   let showClassModal = false;
-  let newClassName: string = "";
+  let newClassName: string = '';
   function openAddClass() { showClassModal = true; }
   function closeAddClass() { showClassModal = false; }
 
-  function addClass() {
-    // const newId = classesModal.length ? Math.min(...classesModal.map(c => c.id)) - 1 : -1;
-    // classesModal = [...classesModal, { id: newId, name: newClassName }];
-    // newClassName = "";
+  async function addClass() {
+    if (newClassName.trim() !== '') {
+      const formData = new FormData();
+      formData.append('name', newClassName.trim().toUpperCase());
+
+      const response = await fetch('/api/classes/add', {
+        method: 'POST',
+        body: formData,
+      });
+      const responseData = await response.json();
+      if (!responseData.success) {
+        console.error('Failed to add class');
+        return;
+      }
+
+      // update local
+      const newClass: PlantClass = {
+        id: responseData.id,
+        name: newClassName.toUpperCase(),
+      };
+      data.classes = [...data.classes, newClass];
+      newClassName = '';
+    }
   }
-  function removeClass(id: number) {
-    // classesModal = classesModal.filter(c => c.id !== id);
+  async function removeClass(id: number) {
+    const formData = new FormData(); 
+    formData.append('id', id.toString());
+
+    const response = await fetch('/api/classes/delete', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const responseData = await response.json();
+    if (!responseData.success) {
+      console.error('Failed to delete class');
+      return;
+    }
+
+    // update local
+    data.classes = data.classes.filter((plantClass: PlantClass) => plantClass.id !== id);
   }
 
   // families modal
   let showFamilyModal = false;
-  let newFamilyCommonName: string = "";
-  let newFamilyScientificName: string = "";
+  let newFamilyCommonName: string = '';
+  let newFamilyScientificName: string = '';
   function openAddFamily() { showFamilyModal = true; }
   function closeAddFamily() { showFamilyModal = false; }
   
@@ -334,7 +367,7 @@
                   placeholder="Note"
                 />
                 <select bind:value={editingPlantClass} class="border border-gray-300 rounded p-1 mb-2">
-                  {#each classOptions as option (option.id)}
+                  {#each data.classes as option (option.id)}
                     <option value={option.id}>{option.name}</option>
                   {/each}
                 </select>
@@ -404,7 +437,7 @@
       />
       <select bind:value={newPlantClass} class="border border-gray-300 rounded p-1">
         <option value=0 disabled selected>Select Class</option>
-        {#each classOptions as option (option.id)}
+        {#each data.classes as option (option.id)}
           <option value={option.id}>{option.name}</option>
         {/each}
       </select>
