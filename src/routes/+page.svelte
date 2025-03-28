@@ -366,26 +366,23 @@
       <div class="flex-1 overflow-y-auto">
         <ul class="divide-y divide-gray-200">
           {#each filteredUsers as user (user.id)}
-            <li
-              class="py-2 flex items-center justify-between cursor-pointer hover:bg-gray-100"
-              class:bg-blue-100={selectedUser && selectedUser.id === user.id}              
-            >
-            <button 
-              on:click={() => handleUserClick(user)}
-              >
-              <div class="flex flex-col">
-                <span class="font-bold">{user.name} {user.surname}</span>
-                <span class="text-xs text-gray-500">Registered on: {formatDate(user.created_at)}</span>
-              </div>
-            </button>
-            <button
-              class="bg-red-500 text-white text-xs px-2 py-1 rounded hover:bg-red-600"
-              on:click={() => deleteUser(user)}
-            >Delete</button>
+            <li class="py-2 flex items-center justify-between cursor-pointer hover:bg-gray-100"
+                class:bg-blue-100={selectedUser && selectedUser.id === user.id}>
+              <button on:click={() => handleUserClick(user)}>
+                <div class="flex flex-col items-start text-left">
+                  <span class="text-md font-bold">{user.name} {user.surname}</span>
+                  <span class="text-xs text-gray-500">Registered on: {formatDate(user.created_at)}</span>
+                </div>
+              </button>
+              <button class="bg-red-500 text-white text-xs px-2 py-1 rounded hover:bg-red-600"
+                      on:click={() => deleteUser(user)}>
+                Delete
+              </button>
             </li>
           {/each}
         </ul>
       </div>
+      
     </div>
 
     <!-- user plants -->
