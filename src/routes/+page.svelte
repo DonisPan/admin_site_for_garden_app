@@ -33,7 +33,7 @@
     const formData = new FormData(); 
     formData.append('id', user.id.toString());
 
-    const confirmDelete = window.confirm('Are you sure you want to delete this user?');
+    const confirmDelete = window.confirm('Si si istý, že chceš zmazať tohoto používateľa?');
     if (!confirmDelete) {
         return;
     }
@@ -45,7 +45,7 @@
     
     const responseData = await response.json();
     if (!responseData.success) {
-      console.error('Failed to delete user');
+      console.error('Nepodarilo sa vymazať používateľa');
       return;
     }
     
@@ -69,7 +69,7 @@
 
     const responseData = await response.json();
     if (!responseData.success) {
-      console.error('Failed to delete plant');
+      console.error('Nepodarilo sa vymazať rastlinu');
       return;
     }
 
@@ -119,7 +119,7 @@
       });
       const responseData = await response.json();
       if (!responseData.success) {
-        console.error('Failed to update plant');
+        console.error('Nepodarilo sa upraviť rastlinu');
         return;
       }
       console.log(responseData.message);
@@ -163,7 +163,7 @@
       });
       const responseData = await response.json();
       if (!responseData.success) {
-        console.error('Failed to add plant');
+        console.error('Nepodarilo sa pridať rastlinu');
         return;
       }
 
@@ -210,7 +210,7 @@
       });
       const responseData = await response.json();
       if (!responseData.success) {
-        console.error('Failed to add class');
+        console.error('Nepodarilo sa pridať triedu rastliny');
         return;
       }
 
@@ -234,7 +234,7 @@
 
     const responseData = await response.json();
     if (!responseData.success) {
-      console.error('Failed to delete class');
+      console.error('Nepodarilo sa odstrániť triedu rastliny');
       return;
     }
 
@@ -261,7 +261,7 @@
       });
       const responseData = await response.json();
       if (!responseData.success) {
-        console.error('Failed to add family');
+        console.error('Nepodarilo sa pridať rodinu rastliny');
         return;
       }
 
@@ -287,7 +287,7 @@
 
     const responseData = await response.json();
     if (!responseData.success) {
-      console.error('Failed to delete family');
+      console.error('Nepodarilo sa odstrániť rodinu rastliny');
       return;
     }
 
@@ -314,7 +314,7 @@
       });
       const responseData = await response.json();
       if (!responseData.success) {
-        console.error('Failed to add announcer');
+        console.error('Nepodarilo sa pridať oznámenie');
         return;
       }
 
@@ -341,7 +341,7 @@
 
     const responseData = await response.json();
     if (!responseData.success) {
-      console.error('Failed to delete announcer');
+      console.error('Nepodarilo sa odstrániť oznámenie');
       return;
     }
 
@@ -359,7 +359,7 @@
       <h2 class="text-lg font-semibold mb-2">Users</h2>
       <input
         type="text"
-        placeholder="Search Users"
+        placeholder="Vyhľadávanie používateľov"
         bind:value={userSearchQuery}
         class="mb-2 border border-gray-300 rounded p-1"
       />
@@ -371,12 +371,12 @@
               <button on:click={() => handleUserClick(user)}>
                 <div class="flex flex-col items-start text-left">
                   <span class="text-md font-bold">{user.name} {user.surname}</span>
-                  <span class="text-xs text-gray-500">Registered on: {formatDate(user.created_at)}</span>
+                  <span class="text-xs text-gray-500">Registrovaný: {formatDate(user.created_at)}</span>
                 </div>
               </button>
               <button class="bg-red-500 text-white text-xs px-2 py-1 rounded hover:bg-red-600"
                       on:click={() => deleteUser(user)}>
-                Delete
+                Odstrániť
               </button>
             </li>
           {/each}
@@ -389,9 +389,9 @@
     <div class="bg-white border border-gray-300 rounded-lg p-4 h-[45vh] flex flex-col">
       <h2 class="text-lg font-semibold mb-2">
         {#if selectedUser}
-          {selectedUser.name}'s Plants
+          Rastliny používateľa {selectedUser.name}
         {:else}
-          User Plants
+          Rastliny používateľa
         {/if}
       </h2>
       <div class="flex-1 overflow-y-auto">
@@ -408,10 +408,10 @@
                 </li>
               {/each}
             {:else}
-              <li class="py-2">No plants for this user.</li>
+              <li class="py-2">Tento používateľ si neeviduje žiadne rastliny</li>
             {/if}
           {:else}
-            <li class="py-2">Select a user to view their plants.</li>
+            <li class="py-2">Vyber používateľa</li>
           {/if}
         </ul>
       </div>
@@ -420,10 +420,10 @@
 
   <!-- plants -->
   <div class="bg-white border border-gray-300 rounded-lg p-4 w-[45vw] h-[97vh] flex flex-col">
-    <h2 class="text-lg font-semibold mb-2">Plants</h2>
+    <h2 class="text-lg font-semibold mb-2">Rastliny</h2>
     <input
       type="text"
-      placeholder="Search My Plants"
+      placeholder="Vyhľadávanie rastlín"
       bind:value={plantSearchQuery}
       class="mb-2 border border-gray-300 rounded p-1"
     />
@@ -437,13 +437,13 @@
                   type="text"
                   bind:value={editingPlantName}
                   class="border border-gray-300 rounded p-1 mb-2"
-                  placeholder="Plant Name"
+                  placeholder="Názov rastliny"
                 />
                 <input
                   type="text"
                   bind:value={editingPlantNote}
                   class="border border-gray-300 rounded p-1 mb-2"
-                  placeholder="Note"
+                  placeholder="Poznámka"
                 />
                 <select bind:value={editingPlantClass} class="border border-gray-300 rounded p-1 mb-2">
                   {#each data.classes as option (option.id)}
@@ -459,28 +459,28 @@
               <div class="flex gap-2">
                 <button
                   on:click={saveEditing}
-                  class="bg-green-500 text-white text-xs px-2 py-1 rounded hover:bg-green-600"> Save </button>
+                  class="bg-green-500 text-white text-xs px-2 py-1 rounded hover:bg-green-600"> Uložiť </button>
                 <button
                   on:click={cancelEditing}
-                  class="bg-gray-500 text-white text-xs px-2 py-1 rounded hover:bg-gray-600"> Cancel </button>
+                  class="bg-gray-500 text-white text-xs px-2 py-1 rounded hover:bg-gray-600"> Zrušiť </button>
               </div>
             {:else}
               <div class="flex flex-1 flex-col">
                 <span class="font-bold">{plant.name}</span>
-                <span class="text-sm">Note: <i class="font-semibold">{plant.note}</i></span>
+                <span class="text-sm">Poznámka: <i class="font-semibold">{plant.note}</i></span>
                 <span class="text-sm">
-                  Class: <i class="font-semibold">
+                  Trieda: <i class="font-semibold">
                     {data.classes.find(c => c.id === plant.class)?.name || "Unknown"}
                   </i>
                 </span>
                 <div>
                   <span class="text-sm">
-                    Family Common: <i class="font-semibold">
+                    Názov rodiny: <i class="font-semibold">
                       {data.families.find(f => f.id === plant.family)?.name_common || "Unknown"}
                     </i> |
                   </span>
                   <span class="text-sm">
-                    Family Scientific: <i class="font-semibold">
+                    Vedecký názov rodiny: <i class="font-semibold">
                       {data.families.find(f => f.id === plant.family)?.name_scientific || "Unknown"}
                     </i>
                   </span>
@@ -489,10 +489,10 @@
               <div class="flex gap-2">
                 <button
                   on:click={() => startEditing(plant)}
-                  class="bg-blue-500 text-white text-xs px-2 py-1 rounded hover:bg-blue-600"> Edit </button>
+                  class="bg-blue-500 text-white text-xs px-2 py-1 rounded hover:bg-blue-600"> Upraviť </button>
                 <button
                   on:click={() => deletePlant(plant.id)}
-                  class="bg-red-500 text-white text-xs px-2 py-1 rounded hover:bg-red-600"> Delete </button>
+                  class="bg-red-500 text-white text-xs px-2 py-1 rounded hover:bg-red-600"> Odstrániť </button>
               </div>
             {/if}
           </li>
@@ -504,24 +504,24 @@
     <div class="mt-4 flex flex-col gap-2">
       <input
         type="text"
-        placeholder="New Plant Name"
+        placeholder="Názov novej rastliny"
         bind:value={newPlantName}
         class="border border-gray-300 rounded p-1"
       />
       <input
         type="text"
-        placeholder="Note"
+        placeholder="Poznámka"
         bind:value={newPlantNote}
         class="border border-gray-300 rounded p-1"
       />
       <select bind:value={newPlantClass} class="border border-gray-300 rounded p-1">
-        <option value=0 disabled selected>Select Class</option>
+        <option value=0 disabled selected>Vyber triedu</option>
         {#each data.classes as option (option.id)}
           <option value={option.id}>{option.name}</option>
         {/each}
       </select>
       <select bind:value={newPlantFamily} class="border border-gray-300 rounded p-1">
-        <option value=0 disabled selected>Select Family</option>
+        <option value=0 disabled selected>Vyber rodinu</option>
         {#each data.families as option (option.id)}
           <option value={option.id}>{option.name_common} - {option.name_scientific}</option>
         {/each}
@@ -529,7 +529,7 @@
       <button
         on:click={addNewPlant}
         class="bg-blue-500 text-white text-xs px-2 py-1 rounded hover:bg-blue-600"
-      > Add </button>
+      > Pridať </button>
     </div>
   </div>
 
@@ -538,18 +538,18 @@
     <button
       on:click={openAddClass}
       class="bg-blue-500 text-white text-xs px-2 py-1 rounded hover:bg-blue-600"
-    > Add class </button>
+    > Manažovanie tried </button>
 
     <button
       on:click={openAddFamily}
       class="bg-blue-500 text-white text-xs px-2 py-1 rounded hover:bg-blue-600"
-    > Add family </button>
+    > Manažovanie rodín </button>
 
     <gap class="h-[20px]"></gap>
     <button
       on:click={openAnnouncers}
       class="bg-red-500 text-white text-xs px-2 py-1 rounded hover:bg-red-600"
-    > Announcers </button>
+    > Oznámenia </button>
   </div>
 
   <!-- class modal -->
@@ -557,13 +557,13 @@
     <div class="fixed inset-0 flex items-center justify-center backdrop-blur-lg z-50 transition-opacity duration-300">
       <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 transform transition-all duration-300 scale-95">
         <div class="flex justify-between items-center border-b pb-3 mb-4">
-          <h2 class="text-2xl font-bold text-gray-800">Manage Classes</h2>
+          <h2 class="text-2xl font-bold text-gray-800">Triedy</h2>
           <button on:click={closeAddClass} class="text-gray-600 hover:text-gray-800 text-3xl leading-none">X</button>
         </div>
         <table class="min-w-full border border-gray-200">
           <thead>
             <tr class="bg-gray-50">
-              <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Name</th>
+              <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Názov</th>
               <th class="px-4 py-2 text-right text-sm font-medium text-gray-600"></th>
             </tr>
           </thead>
@@ -575,18 +575,18 @@
                 </td>
                 <td class="px-4 py-2 flex justify-end">
                   <button on:click={() => removeClass(classItem.id)} class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded transition-colors duration-200 w-32 self-end">
-                    Remove
+                    Odstrániť
                   </button>
                 </td>
               </tr>
             {/each}
             <tr>
               <td class="px-4 py-2">
-                <input type="text" bind:value={newClassName} class="w-full border border-gray-300 rounded p-1 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="New Class Name" />
+                <input type="text" bind:value={newClassName} class="w-full border border-gray-300 rounded p-1 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Nová trieda" />
               </td>
               <td class="px-4 py-2 flex justify-end">
                 <button on:click={addClass} class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded transition-colors duration-200 w-32">
-                  Add
+                  Pridať
                 </button>
               </td>
             </tr>
@@ -601,14 +601,14 @@
     <div class="fixed inset-0 flex items-center justify-center backdrop-blur-lg z-50 transition-opacity duration-300">
       <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 transform transition-all duration-300 scale-95 max-h-150 overflow-y-auto">
         <div class="flex justify-between items-center border-b pb-3 mb-4">
-          <h2 class="text-2xl font-bold text-gray-800">Manage Families</h2>
+          <h2 class="text-2xl font-bold text-gray-800">Rodiny</h2>
           <button on:click={closeAddFamily} class="text-gray-600 hover:text-gray-800 text-3xl leading-none">X</button>
         </div>
         <table class="min-w-full border border-gray-200">
           <thead>
             <tr class="bg-gray-50">
-              <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Common Name</th>
-              <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Scientific Name</th>
+              <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Názov</th>
+              <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Vedecký názov</th>
               <th class="px-4 py-2 text-right text-sm font-medium text-gray-600"></th>
             </tr>
           </thead>
@@ -623,21 +623,21 @@
                 </td>
                 <td class="px-4 py-2 flex justify-end">
                   <button on:click={() => removeFamily(familyItem.id)} class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded transition-colors duration-200 w-32 self-end">
-                    Remove
+                    Odstrániť
                   </button>
                 </td>
               </tr>
             {/each}
             <tr>
               <td class="px-4 py-2">
-                <input type="text" bind:value={newFamilyCommonName} class="w-full border border-gray-300 rounded p-1 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="New Common Name" />
+                <input type="text" bind:value={newFamilyCommonName} class="w-full border border-gray-300 rounded p-1 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Nový názov" />
               </td>
               <td class="px-4 py-2">
-                <input type="text" bind:value={newFamilyScientificName} class="w-full border border-gray-300 rounded p-1 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="New Scientific Name" />
+                <input type="text" bind:value={newFamilyScientificName} class="w-full border border-gray-300 rounded p-1 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Nový vedecký názov" />
               </td>
               <td class="px-4 py-2 flex justify-end">
                 <button on:click={addFamily} class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded transition-colors duration-200 w-32">
-                  Add
+                  Pridať
                 </button>
               </td>
             </tr>
@@ -652,14 +652,14 @@
     <div class="fixed inset-0 flex items-center justify-center backdrop-blur-lg z-50 transition-opacity duration-300">
       <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl p-6 transform transition-all duration-300 scale-95 max-h-150 overflow-y-auto">
         <div class="flex justify-between items-center border-b pb-3 mb-4">
-          <h2 class="text-2xl font-bold text-gray-800">Manage Announcers</h2>
+          <h2 class="text-2xl font-bold text-gray-800">Správa oznámení</h2>
           <button on:click={closeAnnouncers} class="text-gray-600 hover:text-gray-800 text-3xl leading-none">X</button>
         </div>
         <table class="min-w-full border border-gray-200">
           <thead>
             <tr class="bg-gray-50">
-              <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">For Family</th>
-              <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Message</th>
+              <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Rodina</th>
+              <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Oznam</th>
               <th class="px-4 py-2 text-right text-sm font-medium text-gray-600"></th>
             </tr>
           </thead>
@@ -675,7 +675,7 @@
                 </td>
                 <td class="px-4 py-2 flex justify-end">
                   <button on:click={() => removeAnnouncer(announcer.id)} class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded transition-colors duration-200 w-32 self-end">
-                    Remove
+                    Odstrániť
                   </button>
                 </td>
               </tr>
@@ -683,18 +683,18 @@
             <tr>
               <td class="px-4 py-2">
                 <select bind:value={newAnnouncerPlantFamily} class="border border-gray-300 rounded p-1">
-                  <option value=0 disabled selected>Select Family</option>
+                  <option value=0 disabled selected>Vyber rodinu</option>
                   {#each data.families as option (option.id)}
                     <option value={option.id}>{option.name_common} - {option.name_scientific}</option>
                   {/each}
                 </select>
               </td>
               <td class="px-4 py-2">
-                <textarea bind:value={newAnnouncerMessage} class="w-full h-24 border border-gray-300 rounded p-1 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Enter message"></textarea>
+                <textarea bind:value={newAnnouncerMessage} class="w-full h-24 border border-gray-300 rounded p-1 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Nový oznam"></textarea>
               </td>
               <td class="px-4 py-2 flex justify-end">
                 <button on:click={addAnnouncer} class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded transition-colors duration-200 w-32">
-                  Add
+                  Pridať
                 </button>
               </td>
             </tr>
