@@ -5,8 +5,13 @@ import { supabase } from "$lib/supabase";
 import type { PlantClass } from "../models/class.model";
 import type { PlantFamily } from "../models/family.model";
 import type { Announcer } from "../models/announcer.model";
+import { redirect } from "@sveltejs/kit";
 
-export const load: PageServerLoad = async (): Promise<any> => {
+export const load: PageServerLoad = async ({locals}): Promise<any> => {
+      if (!locals.is_authorized) {
+        throw redirect(303, '/login');
+      }
+
     console.log('HOME PAGE LOADING');
 
     // fetch users
@@ -87,6 +92,5 @@ export const load: PageServerLoad = async (): Promise<any> => {
     }
     const announcers: Announcer[] = announcerData as Announcer[];
 
-    // console.log('SERVER: ', announcers)
     return { users, userPlants, plants, classes, families, announcers }
 }

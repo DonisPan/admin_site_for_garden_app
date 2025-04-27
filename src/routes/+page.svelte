@@ -4,7 +4,7 @@
   import type { Plant } from "../models/plant.model";
   import type { PlantClass } from "../models/class.model";
   import type { PlantFamily } from "../models/family.model";
-    import type { Announcer } from "../models/announcer.model";
+  import type { Announcer } from "../models/announcer.model";
 
   export let data: { 
     users: User[], 
@@ -349,6 +349,14 @@
     data.announcers = data.announcers.filter((announcer: Announcer) => announcer.id !== id);
   }
 
+  // logout
+  async function logout() {
+    const response = await fetch('/api/loginPage/logout', {
+          method: 'POST',
+          body: new URLSearchParams({ action: 'logout' }),
+      });
+    location.reload();
+  }
 </script>
 
 <div class="w-[100vw] flex flex-wrap gap-4 m-4">
@@ -550,6 +558,11 @@
       on:click={openAnnouncers}
       class="bg-red-500 text-white text-xs px-2 py-1 rounded hover:bg-red-600"
     > Oznámenia </button>
+
+    <button
+      on:click={logout}
+      class="bg-blue-500 text-white text-xs px-2 py-1 rounded hover:bg-red-600"
+    > Odhlásiť </button>
   </div>
 
   <!-- class modal -->
