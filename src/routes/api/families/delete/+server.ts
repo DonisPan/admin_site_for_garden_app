@@ -10,8 +10,8 @@ export async function POST({ request, locals }) {
         .delete()
         .eq('id', id);
     if(familyDeleteError) {
-        return json({ success: false, message: familyDeleteError});
+        return json({ success: false, error: familyDeleteError});
     }
 
-    return json({ success: true, message: 'Family deleted.' });
+    return json({ success: true, error: 'Family deleted.' });
 }

@@ -10,8 +10,8 @@ export async function POST({ request, locals }) {
         .delete()
         .eq('id', id);
     if(announcerDeleteError) {
-        return json({ success: false, message: announcerDeleteError});
+        return json({ success: false, error: announcerDeleteError});
     }
 
-    return json({ success: true, message: 'Announcer deleted.' });
+    return json({ success: true, error: 'Announcer deleted.' });
 }

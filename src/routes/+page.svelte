@@ -45,7 +45,7 @@
     
     const responseData = await response.json();
     if (!responseData.success) {
-      console.error('Nepodarilo sa vymazať používateľa');
+      alert(responseData.error);
       return;
     }
     
@@ -69,7 +69,7 @@
 
     const responseData = await response.json();
     if (!responseData.success) {
-      console.error('Nepodarilo sa vymazať rastlinu');
+      alert(responseData.error);
       return;
     }
 
@@ -104,6 +104,7 @@
     editingPlantNote = '';
   }
 
+  // update plant
   async function saveEditing() {
     if (editingPlantId !== null) {
       const formData = new FormData();
@@ -119,10 +120,10 @@
       });
       const responseData = await response.json();
       if (!responseData.success) {
-        console.error('Nepodarilo sa upraviť rastlinu');
+        alert(responseData.error);
         return;
       }
-      console.log(responseData.message);
+      console.log(responseData.error);
 
       // update local
       data.plants = data.plants.map((plant: Plant) =>
@@ -163,7 +164,7 @@
       });
       const responseData = await response.json();
       if (!responseData.success) {
-        console.error('Nepodarilo sa pridať rastlinu');
+        alert(responseData.error);
         return;
       }
 

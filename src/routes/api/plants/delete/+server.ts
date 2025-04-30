@@ -10,8 +10,8 @@ export async function POST({ request, locals }) {
         .delete()
         .eq('id', id);
     if(plantDeleteError) {
-        return json({ success: false, message: plantDeleteError});
+        return json({ success: false, error: plantDeleteError});
     }
 
-    return json({ success: true, message: 'Plant deleted.' });
+    return json({ success: true, error: 'Plant deleted.' });
 }

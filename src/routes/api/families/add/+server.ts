@@ -15,8 +15,8 @@ export async function POST({ request, locals }) {
         .select('id')
         .single();
     if(familyInsertError) {
-        return json({ success: false, message: familyInsertError});
+        return json({ success: false, error: familyInsertError});
     }
 
-    return json({ success: true, message: 'Family added.', id: familyInsertData.id});
+    return json({ success: true, error: 'Family added.', id: familyInsertData.id});
 }

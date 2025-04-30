@@ -13,8 +13,8 @@ export async function POST({ request, locals }) {
         .select('id')
         .single();
     if(classInsertError) {
-        return json({ success: false, message: classInsertError});
+        return json({ success: false, error: classInsertError});
     }
 
-    return json({ success: true, message: 'Class added.', id: classInsertData.id});
+    return json({ success: true, error: 'Class added.', id: classInsertData.id});
 }

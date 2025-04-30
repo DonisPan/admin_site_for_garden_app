@@ -15,8 +15,8 @@ export async function POST({ request, locals }) {
     .select('id')
     .single();
     if(announcerInsertError) {
-        return json({ success: false, message: announcerInsertError});
+        return json({ success: false, error: announcerInsertError});
     }
 
-    return json({ success: true, message: 'Announcer added.', id: announcerInsertData.id});
+    return json({ success: true, error: 'Announcer added.', id: announcerInsertData.id});
 }

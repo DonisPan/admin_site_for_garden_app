@@ -1,7 +1,5 @@
 <script lang="ts">
-    import { supabase } from '$lib/supabase.js';
     import { goto } from '$app/navigation';
-    import { onMount } from 'svelte';
     
     let email = '';
     let password = '';
@@ -15,8 +13,8 @@
         formData.append('email', email);
         formData.append('password', password);
 
-        const res = await fetch('/api/loginPage/login', { method: 'POST', body: formData });
-        const { success, error } = await res.json();
+        const response = await fetch('/api/loginPage/login', { method: 'POST', body: formData });
+        const { success, error } = await response.json();
         if (!success) {
             errorMessage = error;
             return;

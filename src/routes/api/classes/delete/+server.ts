@@ -10,8 +10,8 @@ export async function POST({ request, locals }) {
         .delete()
         .eq('id', id);
     if(classDeleteError) {
-        return json({ success: false, message: classDeleteError});
+        return json({ success: false, error: classDeleteError});
     }
 
-    return json({ success: true, message: 'Class deleted.' });
+    return json({ success: true, error: 'Class deleted.' });
 }

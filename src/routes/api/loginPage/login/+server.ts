@@ -1,10 +1,24 @@
 import { supabase } from '$lib/supabase';
 import { json, type RequestHandler } from '@sveltejs/kit';
+import { z } from 'zod';
+
+const loginSchema = z.object({
+    email:    z.string().email({ message: 'Neplatný formát emailu' }),
+    password: z
+        .string()
+        .min(6, { message: 'Heslo musí byť aspoň 6 znakov' })
+        .max(20, { message: 'Heslo musí byť kratšie ako 20 znakov' })
+})
 
 export const POST: RequestHandler = async ({ request, cookies, locals }) => {
   const formData = await request.formData();
   const email = String(formData.get('email')   ?? '');
   const password = String(formData.get('password')?? '');
+
+  const validationResult = loginSchema.safeParse({ email, password });
+  if (!validationResult.success) {
+    return json({ success: false, error: validationResult.error.errors.map((err) => err.message).join(', ') });
+  }
 
   // sign in
   const { data: loginData, error: loginError } =
